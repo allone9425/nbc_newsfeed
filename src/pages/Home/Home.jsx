@@ -1,46 +1,41 @@
-import { getDocs } from 'firebase/firestore';
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setContents } from 'redux/modules/content';
-import { newsFeedCollection } from '../../firebase';
 import * as S from './Home.styled';
-
 const Home = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const contentsData = useSelector(state => state.contents.contents);
-  console.log('contentsData: ', contentsData);
+  const categoryData = useSelector(state => state.navbar);
+  const [filteredData, setFilteredData] = useState([]);
+  // console.log(contentsData); // [{ category: "음악", ....}, { category: "스포츠,대학생" }, {}, ....]
+  // console.log(categoryData); // { category: "default"}
 
   useEffect(() => {
-    const getContents = async () => {
-      const querySnapshot = await getDocs(newsFeedCollection);
-      const data = querySnapshot.docs.map(doc => doc.data());
-      dispatch(setContents(data));
-    };
-    getContents();
-  }, [dispatch]);
-
-  const goToWritePage = () => {
-    navigate('/write');
-  };
-  const goToContentPage = id => {
-    navigate(`/content/${id}`);
-  };
+    if (categoryData.category !== 'default') {
+      setFilteredData(
+        contentsData.filter(content => {
+          return content.category?.includes(categoryData.category);
+        }),
+      );
+    } else {
+      setFilteredData(contentsData);
+    }
+  }, [categoryData, contentsData]);
 
   return (
     <>
-      <S.Button onClick={goToWritePage}>글쓰기</S.Button>
+      <S.Button onClick={() => navigate('/write')}>글쓰기</S.Button>
       <S.BoxContainer>
         <S.ContentsList>
-          {contentsData.map(contents => (
-            <S.ContentsBox key={contents.id} onClick={() => goToContentPage(contents.id)}>
+          {filteredData.map(contents => (
+            <S.ContentsBox key={contents.id} onClick={() => navigate(`/content/${contents.id}`)}>
               <S.Title>{contents.title}</S.Title>
               <S.AvatarName>
-                <S.Avatar src={contents.pic} alt="사진" />
+                <S.AvartarFrame>
+                  <S.Avatar src={contents.pic} alt="사진" />
+                </S.AvartarFrame>
                 <S.Name>{contents.name}</S.Name>
               </S.AvatarName>
-
               <S.Content>{contents.content}</S.Content>
               <S.Date>{contents.date}</S.Date>
             </S.ContentsBox>

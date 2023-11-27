@@ -14,10 +14,11 @@ const GlobalStyle = createGlobalStyle`
     font-style: normal;
 }
   body {
+    transition: all 0.3s;
     display: flex;
-    background-color: #eee;
+    background-color: ${({ theme }) => theme.bgColor};
     font-family: 'Pretendard-Regular';
-    
+  
   }
 
   input {
@@ -33,6 +34,8 @@ const GlobalStyle = createGlobalStyle`
   button {
     font-family: inherit;
   }
+
+  a{color:inherit;}
 `;
 
 export default GlobalStyle;
